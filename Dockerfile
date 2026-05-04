@@ -1,27 +1,35 @@
-FROM php:8.2-apache
+FROM ubuntu:22.04
 
-# Install mysqli extension
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Enable Apache mod_rewrite
+# Install Apache, PHP, and mysqli
+RUN apt-get update && apt-get install -y \
+    apache2 \
+    php \
+    php-mysqli \
+    libapache2-mod-php \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Enable rewrite
 RUN a2enmod rewrite
 
-# Copy all app files to web root
+# Copy app files
 COPY . /var/www/html/
+RUN rm -f /var/www/html/index.html
 
-# Set proper permissions
+# Permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
 # Apache config
-RUN echo '<Directory /var/www/html>\nAllowOverride All\nRequire all granted\n</Directory>' \
-    > /etc/apache2/conf-available/app.conf \
+RUN echo '<Directory /var/www/html>\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>' > /etc/apache2/conf-available/app.conf \
     && a2enconf app
 
-# Copy startup script
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
-
-EXPOSE 80
 
 CMD ["/start.sh"]
