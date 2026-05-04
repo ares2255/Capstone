@@ -26,4 +26,4 @@ RUN echo '<Directory /var/www/html>' >> /etc/apache2/conf-available/app.conf \
 
 EXPOSE 80
 
-CMD bash -c "sed -i \"s/Listen 80/Listen \${PORT:-80}/\" /etc/apache2/ports.conf && sed -i \"s/<VirtualHost \*:80>/<VirtualHost *:\${PORT:-80}>/\" /etc/apache2/sites-enabled/000-default.conf && apachectl -D FOREGROUND"
+ENTRYPOINT ["/bin/bash", "-c", "sed -i \"s/Listen 80/Listen ${PORT:-80}/\" /etc/apache2/ports.conf && sed -i \"s/<VirtualHost \\*:80>/<VirtualHost *:${PORT:-80}>/\" /etc/apache2/sites-enabled/000-default.conf && apachectl -D FOREGROUND"]
