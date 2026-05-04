@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 
 RUN a2enmod rewrite
 
+# Set ServerName to suppress warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 COPY . /var/www/html/
 RUN rm -f /var/www/html/index.html
 
@@ -26,4 +29,4 @@ RUN echo '<Directory /var/www/html>' >> /etc/apache2/conf-available/app.conf \
 
 EXPOSE 80
 
-ENTRYPOINT ["/bin/bash", "-c", "sed -i \"s/Listen 80/Listen ${PORT:-80}/\" /etc/apache2/ports.conf && sed -i \"s/<VirtualHost \\*:80>/<VirtualHost *:${PORT:-80}>/\" /etc/apache2/sites-enabled/000-default.conf && apachectl -D FOREGROUND"]
+CMD ["apachectl", "-D", "FOREGROUND"]
