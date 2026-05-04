@@ -2,7 +2,6 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Apache, PHP, and mysqli
 RUN apt-get update && apt-get install -y \
     apache2 \
     php \
@@ -11,25 +10,17 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable rewrite
 RUN a2enmod rewrite
 
-# Copy app files
 COPY . /var/www/html/
 RUN rm -f /var/www/html/index.html
 
-# Permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Apache config
-RUN echo '<Directory /var/www/html>\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>' > /etc/apache2/conf-available/app.conf \
-    && a2enconf app
+RUN echo '<Directory /var/www/html>\nAllowOverride All\nRequire all granted\n</Directory>' \
+    > /etc/apache2/conf-available/app.conf && a2enconf app
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+EXPOSE 80
 
-CMD ["/start.sh"]
+CMD ["bash", "-c", "sed -i \"s/Listen 80/Listen ${PORT:-80}/\" /etc/apache2/ports.conf && sed -i \"s/<VirtualHost \\*:80>/<VirtualHost *:${PORT:-80}>/\" /etc/apache2/sites-enabled/000-default.conf && apachectl -D FOREGROUND"]
