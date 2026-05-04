@@ -1,16 +1,19 @@
 <?php
-// Railway provides MySQL credentials as environment variables.
-// Falls back to localhost defaults for local development.
+$db_host = getenv('DB_HOST') ?: 'db.uvkvgyxpgromqpngqnlr.supabase.co';
+$db_name = getenv('DB_NAME') ?: 'postgres';
+$db_user = getenv('DB_USER') ?: 'postgres';
+$db_pass = getenv('DB_PASSWORD') ?: 'loucamaso123';
+$db_port = getenv('DB_PORT') ?: '5432';
 
-$host   = getenv('MYSQLHOST')     ?: getenv('DB_HOST')     ?: 'localhost';
-$user   = getenv('MYSQLUSER')     ?: getenv('DB_USER')     ?: 'root';
-$pass   = getenv('MYSQLPASSWORD') ?: getenv('DB_PASSWORD') ?: '';
-$dbname = getenv('MYSQLDATABASE') ?: getenv('DB_NAME')     ?: 'netcafepos';
-$port   = (int)(getenv('MYSQLPORT') ?: getenv('DB_PORT') ?: 3306);
-
-$conn = mysqli_connect($host, $user, $pass, $dbname, $port);
-
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+try {
+    $pdo = new PDO(
+        "pgsql:host=$db_host;port=$db_port;dbname=$db_name;sslmode=require",
+        $db_user,
+        $db_pass,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
+    );
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
 }
 ?>
