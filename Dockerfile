@@ -11,12 +11,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN a2enmod rewrite
-
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Remove default Apache page
-RUN rm -f /var/www/html/index.html
+# Remove ALL default apache files
+RUN rm -rf /var/www/html/*
 
+# Copy app files
 COPY . /var/www/html/
 
 RUN chown -R www-data:www-data /var/www/html \
